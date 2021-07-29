@@ -5,6 +5,7 @@ const mysql = require("mysql2");
 const PORT = process.env.PORT || 3001;
 const app = express();
 const inquirer = require("inquirer");
+const cTable = require("console.table");
 
 // setup middleware
 app.use(express.urlencoded({ extended: false }));
@@ -56,11 +57,11 @@ const questions = [
     default: "",
   },
 ];
-//  add ability to select from list of departments in the database
+// TODO add ability to select from list of departments in the database
 // type: "list",
 // name: "updateEmployeeRole",
 // message: "Employee name:",
-// choices: [
+// choices:
 
 // TODO: view all departments
 // TODO: view all employees
