@@ -6,5 +6,5 @@ export default {
   host: "localhost",
   user: "root",
   password: process.env.PASSWORD,
-  database: "movies.db",
+  database: "employees_db",
 };
