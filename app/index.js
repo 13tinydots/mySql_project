@@ -39,12 +39,14 @@ const questions = [
   },
 ];
 // TODO break these questions up to the appropriate sections
+// const questionsDept = [
 //   {
 //     type: "input",
 //     name: "addDepartment",
 //     message: "Department name:",
 //     default: "",
 //   },
+// ];
 //   {
 //     type: "input",
 //     name: "addRole",
@@ -72,18 +74,23 @@ function viewAllDepartments() {
     } else {
       console.table(rows);
     }
+
+    init();
   });
 }
 
 // TODO: view all employees
 function viewAllEmployees() {
-  db.query("SELECT * FROM employee", (err, rows) => {
-    if (err) {
-      console.log(err);
-    } else {
-      console.table(rows);
+  db.query(
+    "SELECT employee.id, first_name, last_name, title, salary, department.name, manager_id FROM employee JOIN role ON role_id = role.id JOIN department ON department_id = department.id",
+    (err, rows) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.table(rows);
+      }
     }
-  });
+  );
 }
 
 // TODO: view all roles
@@ -98,9 +105,36 @@ function viewAllRoles() {
 }
 
 // TODO: add a new department
-// function addNewDepartment() {
-//   prompt(questions, (answers) => {
-//   INSERT INTO departments (department_name) VALUES ();
+function addNewDepartment() {
+  // const prompt = inquirer.createPromptModule();
+  // prompt(questionsDept).then((answers) => {
+  //   db.query(`INSERT INTO department (name) VALUES ${answers}`)
+  //     .then(() => {
+  //       console.log("Department added.");
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // });
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "addDepartment",
+        message: "Department name:",
+      },
+    ])
+    .then(({ addDepartment }) => {
+      const queryString = `
+      INSERT INTO department(name)
+      VALUES (?)`;
+
+      db.query(queryString, [addDepartment], (err, data) => {
+        if (err) throw err;
+        console.log(data);
+      });
+    });
+}
 
 // TODO: add a new employee
 // TODO: add a new role
@@ -120,6 +154,9 @@ function init() {
         break;
       case "view all employees":
         viewAllEmployees();
+        break;
+      case "add a new department":
+        addNewDepartment();
         break;
       default:
         console.log("Invalid action.");
