@@ -38,35 +38,13 @@ const questions = [
     ],
   },
 ];
-// TODO break these questions up to the appropriate sections
-// const questionsDept = [
-//   {
-//     type: "input",
-//     name: "addDepartment",
-//     message: "Department name:",
-//     default: "",
-//   },
-// ];
-//   {
-//     type: "input",
-//     name: "addRole",
-//     message: "Role name:",
-//     default: "",
-//   },
-//   {
-//     type: "input",
-//     name: "addEmployee",
-//     message: "Employee name:",
-//     default: "",
-//   },
-// ];
+
 // TODO add ability to select from list of departments in the database
 // type: "list",
 // name: "updateEmployeeRole",
 // message: "Employee name:",
 // choices:
 
-// TODO: view all departments
 function viewAllDepartments() {
   db.query("SELECT * FROM department", (err, rows) => {
     if (err) {
@@ -79,7 +57,7 @@ function viewAllDepartments() {
   });
 }
 
-// TODO: view all employees
+
 function viewAllEmployees() {
   db.query(
     "SELECT employee.id, first_name, last_name, title, salary, department.name, manager_id FROM employee JOIN role ON role_id = role.id JOIN department ON department_id = department.id",
@@ -104,18 +82,8 @@ function viewAllRoles() {
   });
 }
 
-// TODO: add a new department
+// TODO: add a new department - needs write to DB and view
 function addNewDepartment() {
-  // const prompt = inquirer.createPromptModule();
-  // prompt(questionsDept).then((answers) => {
-  //   db.query(`INSERT INTO department (name) VALUES ${answers}`)
-  //     .then(() => {
-  //       console.log("Department added.");
-  //     })
-  //     .catch((err) => {
-  //       console.log(err);
-  //     });
-  // });
   inquirer
     .prompt([
       {
@@ -136,8 +104,93 @@ function addNewDepartment() {
     });
 }
 
-// TODO: add a new employee
+// TODO: add a new employee - needs write to DB and then view
+
+function addNewEmployee() {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "addEmployeeName",
+        message: "Employee first name:",
+      },
+    ])
+    .then(({ addEmployeeFn }) => {
+      const queryString = `
+      INSERT INTO employee(first_name)
+      VALUES (?)`;
+    });
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "addEmployeeLastName",
+        message: "Employee last name:",
+      },
+    ])
+    .then(({ addEmployeeLn }) => {
+      const queryString = `
+      INSERT INTO employee(last_name)
+      VALUES (?)`;
+    });
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "addEmployeeTitle",
+        message: "Employee title:",
+      },
+    ])
+    .then(({ addEmployeeTitle }) => {
+      const queryString = `
+      INSERT INTO employee(title)
+      VALUES (?)`;
+    });
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "addEmployeeSalary",
+        message: "Employee salary:",
+      },
+    ])
+    .then(({ addEmployeeSalary }) => {
+      const queryString = `
+      INSERT INTO employee(salary)
+      VALUES (?)`;
+    });
+    // TODO: needs to list available departments and then select one
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "addEmployeeDepartment",
+        message: "Employee department:",
+      },
+    ])
+    .then(({ addEmployeeDepartment }) => {
+      const queryString = `
+      INSERT INTO employee(department_id)
+      VALUES (?)`;
+    });
+}
+// this is just to check the entry
+      // db.query(queryString, [addEmployee], (err, data) => {
+      //   if (err) throw err;
+      //   console.log(data);
+
+
+
 // TODO: add a new role
+// function addNewRole() {
+//   inquirer
+//     .prompt([
+//       {
+//         type: "input",
+//         name: "addRole",
+//         message: "Role name:",
+//       },
+
 // TODO: update an employee role
 // TODO: add error handling
 // TODO: BONUS: update employee managers
@@ -158,6 +211,13 @@ function init() {
       case "add a new department":
         addNewDepartment();
         break;
+      case "add a new role":
+        addNewRole();
+        break;
+      case "add a new employee":
+        addNewEmployee();
+        break;
+      case
       default:
         console.log("Invalid action.");
     }
