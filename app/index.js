@@ -5,7 +5,7 @@ import inquirer from "inquirer";
 import mysql from "mysql2";
 const PORT = process.env.PORT || 3001;
 const app = express();
-
+let departments = [];
 // setup middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -44,6 +44,15 @@ const questions = [
 // name: "updateEmployeeRole",
 // message: "Employee name:",
 // choices:
+function loadDepartments() {
+  departments = [];
+  db.query("SELECT * FROM department", (err, data) => {
+    if (err) throw err;
+    data.forEach((department) => {
+      departments.push(department.name);
+    });
+  });
+}
 
 function viewAllDepartments() {
   db.query("SELECT * FROM department", (err, rows) => {
@@ -56,7 +65,6 @@ function viewAllDepartments() {
     init();
   });
 }
-
 
 function viewAllEmployees() {
   db.query(
@@ -79,6 +87,8 @@ function viewAllRoles() {
     } else {
       console.table(rows);
     }
+
+    init();
   });
 }
 
@@ -100,7 +110,9 @@ function addNewDepartment() {
       db.query(queryString, [addDepartment], (err, data) => {
         if (err) throw err;
         console.log(data);
+        console.table(data);
       });
+      init();
     });
 }
 
@@ -114,89 +126,87 @@ function addNewEmployee() {
         name: "addEmployeeName",
         message: "Employee first name:",
       },
-    ])
-    .then(({ addEmployeeFn }) => {
-      const queryString = `
-      INSERT INTO employee(first_name)
-      VALUES (?)`;
-    });
-  inquirer
-    .prompt([
       {
         type: "input",
         name: "addEmployeeLastName",
         message: "Employee last name:",
       },
     ])
-    .then(({ addEmployeeLn }) => {
+    // TODO: fix this
+    .then(({ addEmployeeName, addEmployeeLastName }) => {
       const queryString = `
-      INSERT INTO employee(last_name)
-      VALUES (?)`;
-    });
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        name: "addEmployeeTitle",
-        message: "Employee title:",
-      },
-    ])
-    .then(({ addEmployeeTitle }) => {
-      const queryString = `
-      INSERT INTO employee(title)
-      VALUES (?)`;
-    });
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        name: "addEmployeeSalary",
-        message: "Employee salary:",
-      },
-    ])
-    .then(({ addEmployeeSalary }) => {
-      const queryString = `
-      INSERT INTO employee(salary)
-      VALUES (?)`;
-    });
-    // TODO: needs to list available departments and then select one
-  inquirer
-    .prompt([
-      {
-        type: "input",
-        name: "addEmployeeDepartment",
-        message: "Employee department:",
-      },
-    ])
-    .then(({ addEmployeeDepartment }) => {
-      const queryString = `
-      INSERT INTO employee(department_id)
-      VALUES (?)`;
+      INSERT INTO employee(first_name, last_name)
+      VALUES (?, ?)`;
+
+      db.query(
+        queryString,
+        [addEmployeeName, addEmployeeLastName],
+        (err, data) => {
+          if (err) throw err;
+          console.log(data);
+          console.table(data);
+        }
+      );
     });
 }
 // this is just to check the entry
-      // db.query(queryString, [addEmployee], (err, data) => {
-      //   if (err) throw err;
-      //   console.log(data);
-
-
+// db.query(queryString, [addEmployee], (err, data) => {
+//   if (err) throw err;
+//   console.log(data);
 
 // TODO: add a new role
-// function addNewRole() {
+function addNewRole() {
+  inquirer
+    .prompt([
+      {
+        type: "input",
+        name: "addRole",
+        message: "Role title:",
+      },
+      {
+        type: "input",
+        name: "salary",
+        message: "Role salary:",
+      },
+      {
+        type: "list",
+        name: "department",
+        message: "Department:",
+        choices: departments,
+      },
+    ])
+    .then(({ addRole, salary, department }) => {
+      const queryString = `
+      INSERT INTO role(title, salary, department_id)
+      VALUES (?, ?, ?)`;
+
+      db.query(
+        queryString,
+        [addRole, salary, departments.indexOf(department) + 1],
+        (err, data) => {
+          if (err) throw err;
+          console.log(data);
+          console.table(data);
+        }
+      );
+    });
+}
+
+// TODO: update an employee role
+// function updateEmployeeRole() {
 //   inquirer
 //     .prompt([
 //       {
-//         type: "input",
-//         name: "addRole",
-//         message: "Role name:",
-//       },
+//         type: "list",
+//         name: "updateEmployeeRole",
+//         message: "Employee name:",
+//         choices: [
 
-// TODO: update an employee role
-// TODO: add error handling
 // TODO: BONUS: update employee managers
 // TODO: BONUS: view employees by manager
 
 function init() {
+  loadDepartments();
   inquirer.prompt(questions).then((answers) => {
     switch (answers.action) {
       case "view all departments":
@@ -217,7 +227,9 @@ function init() {
       case "add a new employee":
         addNewEmployee();
         break;
-      case
+      case "update an employee role":
+        // updateEmployeeRole();
+        break;
       default:
         console.log("Invalid action.");
     }
